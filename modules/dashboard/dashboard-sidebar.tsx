@@ -43,9 +43,10 @@ export default function DashboardSidebar() {
           <Image height={20} width={20} alt="Meet AI" className="size-14 rounded-full" src={logo} />
           <p className="font-extrabold text-lg">Meet.AI</p>
         </Link>
+        <Separator/>
       </SidebarHeader>
-      <SidebarContent className="flex flex-col gap-4 p-2">
-        <SidebarGroup>
+      <SidebarContent className="flex flex-col p-2">
+        <SidebarGroup className="space-y-3">
         {firstSection.map(({ icon: Icon, label, href }) => (
           <SidebarMenuItem key={label} className="list-none">
             <SidebarMenuButton asChild>
@@ -65,7 +66,7 @@ export default function DashboardSidebar() {
         ))}
         </SidebarGroup>
         <Separator />
-        <SidebarGroup>
+        <SidebarGroup className="space-y-3">
         {secondSection.map(({ icon: Icon, label, href }) => (
           <SidebarMenuItem key={label} className="list-none">
             <SidebarMenuButton asChild>
@@ -77,7 +78,7 @@ export default function DashboardSidebar() {
                   pathName === href && "bg-slate-400/20"
                 )}
               >
-                <Icon className="w-4 h-4" />
+                <Icon className="size-4" />
                 {label}
               </Link>
             </SidebarMenuButton>
