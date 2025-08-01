@@ -2,15 +2,19 @@
 import { Button } from "@/components/ui/button";
 import { SearchIcon } from "lucide-react";
 import { DashboardCommands } from "./dashboard-commands";
+import { useState } from "react";
 
 export default function DashboardNavbar() {
+
+    const [open, setOpen] = useState(false)
+
     return (<nav className="pl-4 bg-background">
-        <DashboardCommands />
+        <DashboardCommands open={open} setOpen={setOpen} />
         <Button
             className="h-9 w-[240px] justify-start font-normal text-muted-foreground hover:text-muted-foreground"
             variant="outline"
             size="sm"
-            onClick={() => { }}
+            onClick={() => { setOpen(true) }}
         >
             <SearchIcon />
             Search
