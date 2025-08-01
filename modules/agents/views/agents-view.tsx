@@ -9,7 +9,7 @@ export default function Page() {
     const { data } = useSuspenseQuery(trpc.agents.getMany.queryOptions())
 
     return <p>
-                {JSON.stringify(data)}
+                {JSON.stringify(data,null ,2)}
             </p>
 }
 
