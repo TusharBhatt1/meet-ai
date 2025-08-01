@@ -8,9 +8,11 @@ export default function Page() {
     const trpc = useTRPC()
     const { data } = useSuspenseQuery(trpc.agents.getMany.queryOptions())
 
-    return <p>
-                {JSON.stringify(data,null ,2)}
-            </p>
+    return (
+        <div>
+            {data.map((agent) => <p key={agent.id}>{agent.name}</p>)}
+        </div>
+    )
 }
 
 export const AgentViewLoading = () => {
