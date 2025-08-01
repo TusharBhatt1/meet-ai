@@ -1,13 +1,11 @@
 export default function RootLayout({
-    children,
+  children,
 }: Readonly<{
-    children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-    return (
-        <div className="bg-muted min-h-svh flex justify-center items-center p-6 md:p-0">
-            <div className="w-full min-w-sm md:max-w-3xl">
-                {children}
-            </div>
-        </div>
-    )
+  return (
+    <div className="bg-muted min-h-svh flex justify-center items-center p-6 md:p-0">
+      <div className="w-full min-w-sm md:max-w-3xl">{children}</div>
+    </div>
+  );
 }
