@@ -10,7 +10,7 @@ export const agentsRouter = createTRPCRouter({
     .input(
       z.object({
         userId: z.string(),
-      }),
+      })
     )
     .query(async ({ input }) => {
       const [agent] = await db
