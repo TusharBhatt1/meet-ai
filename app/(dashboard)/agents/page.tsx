@@ -9,10 +9,12 @@ export default async function Page() {
 
     void queryClient.prefetchQuery(trpc.agents.getMany.queryOptions())
 
-    return <HydrationBoundary state={dehydrate(queryClient)}>
-        <Suspense fallback={<AgentViewLoading/>}>
-           <AgentsView/>
-        </Suspense>
-    </HydrationBoundary>
+    return (
+        <HydrationBoundary state={dehydrate(queryClient)}>
+            <Suspense fallback={<AgentViewLoading />}>
+                <AgentsView />
+            </Suspense>
+        </HydrationBoundary>
+    )
 
 }
