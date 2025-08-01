@@ -1,10 +1,14 @@
 import React, { useEffect } from "react"
 
-import { CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command"
+import { CommandResponsiveDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command"
 
-export function DashboardCommands() {
-    const [open, setOpen] = React.useState(false)
-  
+export function DashboardCommands({
+  open,
+  setOpen,
+}: {
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>; 
+}) {
     useEffect(() => {
       const down = (e: KeyboardEvent) => {
         if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
@@ -17,7 +21,7 @@ export function DashboardCommands() {
     }, [])
   
     return (
-      <CommandDialog open={open} onOpenChange={setOpen}>
+      <CommandResponsiveDialog open={open} onOpenChange={setOpen}>
         <CommandInput placeholder="Type a command or search..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
@@ -27,6 +31,6 @@ export function DashboardCommands() {
             <CommandItem>Calculator</CommandItem>
           </CommandGroup>
         </CommandList>
-      </CommandDialog>
+      </CommandResponsiveDialog>
     )
   }
