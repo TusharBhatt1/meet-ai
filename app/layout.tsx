@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 import { TRPCReactProvider } from "@/trpc/client";
 import { Toaster } from "@/components/ui/sonner";
 
-const inter = Inter({
+const poppins = Poppins({
+  weight:["100","300","700"],
   subsets: ["latin"],
 });
 
@@ -20,13 +21,9 @@ export default function RootLayout({
 }>) {
   return (
     <TRPCReactProvider>
-      <Toaster/>
+      <Toaster />
       <html lang="en">
-        <body
-          className={`${inter.className} antialiased`}
-        >
-          {children}
-        </body>
+        <body className={`${poppins.className} antialiased`}>{children}</body>
       </html>
     </TRPCReactProvider>
   );

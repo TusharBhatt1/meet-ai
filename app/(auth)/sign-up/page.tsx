@@ -3,15 +3,12 @@ import SignUpView from "@/modules/auth/views/sign-up-view";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-export default async function Page (){
-   
+export default async function Page() {
   const session = await auth.api.getSession({
-    headers: await headers()
-  })
+    headers: await headers(),
+  });
 
-  if (session) redirect("/")
+  if (session) redirect("/");
 
-return (
-  <SignUpView/>
-)
+  return <SignUpView />;
 }
