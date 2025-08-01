@@ -1,6 +1,6 @@
 import { db } from "@/app/db";
 import { agents } from "@/app/db/schema";
-import { createTRPCRouter, baseProcedure, protectedProcedure } from "@/trpc/init";
+import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { createAgentSchema } from "../schemas";
 import z from "zod";
 import { eq } from "drizzle-orm";
@@ -24,6 +24,6 @@ export const agentsRouter = createTRPCRouter({
             userId: ctx.auth.user.id
         }).returning()
 
-        return { createdAgent, success: true, message:`${input.name} agent created !` }
+        return { createdAgent, success: true, message: `${input.name} agent created !` }
     })
 })
