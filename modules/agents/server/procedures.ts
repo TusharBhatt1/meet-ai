@@ -6,7 +6,6 @@ import z from "zod";
 import { eq } from "drizzle-orm";
 
 export const agentsRouter = createTRPCRouter({
-  //todo: make it protected
   getOne: protectedProcedure
     .input(
       z.object({
