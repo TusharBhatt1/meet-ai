@@ -8,9 +8,7 @@ export default function Page() {
     const trpc = useTRPC()
     const { data } = useSuspenseQuery(trpc.agents.getMany.queryOptions())
 
-    return <div className="flex flex-col gap-4">
-        {data.map(agent => <p key={agent.id}>{agent.name}</p>)}
-    </div>
+    return <p>{JSON.stringify(data, null, 2)}</p>
 }
 
 export const AgentViewLoading = () => {
