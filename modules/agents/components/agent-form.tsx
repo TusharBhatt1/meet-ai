@@ -20,6 +20,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Textarea } from "@/components/ui/textarea";
 import GeneratedAvatar from "@/modules/dashboard/generated-avatar";
 import { toast } from "sonner";
+import { LoaderCircleIcon } from "lucide-react";
 
 interface AgentFormProps {
   onSuccess?: () => void;
@@ -44,14 +45,14 @@ export default function AgentForm({
 
         if (isEdit) {
           queryClient.invalidateQueries(
-            trpc.agents.getOne.queryOptions({ userId: initialValues.id }),
+            trpc.agents.getOne.queryOptions({ userId: initialValues.id })
           );
         }
 
         toast.success(res.message);
       },
       onError: (e) => toast.error(e.message),
-    }),
+    })
   );
 
   const form = useForm<z.infer<typeof createAgentSchema>>({
@@ -111,6 +112,7 @@ export default function AgentForm({
         <div className="space-x-4 mt-12">
           <Button type="submit" disabled={isPending}>
             {isEdit ? "Edit" : "Create"}
+            {isPending && <LoaderCircleIcon className="animate-spin" />}
           </Button>
           {onCancel && (
             <Button
