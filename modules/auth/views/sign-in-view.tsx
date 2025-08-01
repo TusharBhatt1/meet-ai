@@ -80,7 +80,7 @@ export default function SignIn() {
                                         Or continue with
                                     </span>
                                 </div>
-                                <SocialsView submitting={submitting}/>
+                                <SocialsView submitting={submitting} />
                                 <div className="text-center">
                                     Dont have an account ? <Link href={"/sign-up"} className="underline underline-offset-4">Sign up</Link>
                                 </div>
