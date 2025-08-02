@@ -30,8 +30,8 @@ export default async function Page({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-7">
-      <AgentsHeader />
       <HydrationBoundary state={dehydrate(queryClient)}>
+        <AgentsHeader />
         <Suspense fallback={<AgentsViewLoading />}>
           <AgentsView />
         </Suspense>
