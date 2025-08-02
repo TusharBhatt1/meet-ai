@@ -35,7 +35,7 @@ export function DataTable<TData, TValue>({
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
-                className="md:py-4 py-2"
+                className="md:py-4 py-2 cursor-pointer"
                 //@ts-expect-error todo
                 onClick={() => onRowClick?.(row.original.id)}
                 data-state={row.getIsSelected() && "selected"}
