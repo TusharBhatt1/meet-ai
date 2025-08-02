@@ -3,9 +3,9 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import { TRPCReactProvider } from "@/trpc/client";
 import { Toaster } from "@/components/ui/sonner";
-
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 const poppins = Poppins({
-  weight:["100","300","700"],
+  weight: ["100", "300", "700"],
   subsets: ["latin"],
 });
 
@@ -21,10 +21,12 @@ export default function RootLayout({
 }>) {
   return (
     <TRPCReactProvider>
-      <Toaster />
-      <html lang="en">
-        <body className={`${poppins.className} antialiased`}>{children}</body>
-      </html>
+      <NuqsAdapter>
+        <Toaster />
+        <html lang="en">
+          <body className={`${poppins.className} antialiased`}>{children}</body>
+        </html>
+      </NuqsAdapter>
     </TRPCReactProvider>
   );
 }

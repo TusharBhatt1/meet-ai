@@ -41,7 +41,7 @@ export default function AgentForm({
   const { mutateAsync: createAgent, isPending } = useMutation(
     trpc.agents.create.mutationOptions({
       onSuccess: async (res) => {
-        await queryClient.invalidateQueries(trpc.agents.getMany.queryOptions());
+        await queryClient.invalidateQueries(trpc.agents.getMany.queryOptions({}));
 
         if (isEdit) {
           queryClient.invalidateQueries(
