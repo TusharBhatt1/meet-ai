@@ -3,6 +3,8 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { AgentGetOne } from "../types";
 import GeneratedAvatar from "@/modules/dashboard/generated-avatar";
+import { VideoIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export const columns: ColumnDef<AgentGetOne>[] = [
   {
@@ -26,11 +28,15 @@ export const columns: ColumnDef<AgentGetOne>[] = [
     accessorKey: "instructions",
     header: "Instructions",
   },
-  // {
-  //     accessorKey: "meetingCount",
-  //     header: "Meeting Count",
-  //     cell:({row})=>{
-  //         <p>{row.or}</p>
-  //     }
-  // }
+  {
+    accessorKey: "meetingCount",
+    header: "Meeting Count",
+    cell: ({ row }) => (
+      <Badge variant={"outline"}>
+        <VideoIcon className="text-blue-500 " />
+        {row.original.meetingCount +
+          `${row.original.meetingCount === 1 ? "meeting" : " meetings"}`}
+      </Badge>
+    ),
+  },
 ];

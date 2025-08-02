@@ -41,11 +41,13 @@ export default function AgentForm({
   const { mutateAsync: createAgent, isPending } = useMutation(
     trpc.agents.create.mutationOptions({
       onSuccess: async (res) => {
-        await queryClient.invalidateQueries(trpc.agents.getMany.queryOptions({}));
+        await queryClient.invalidateQueries(
+          trpc.agents.getMany.queryOptions({})
+        );
 
         if (isEdit) {
           queryClient.invalidateQueries(
-            trpc.agents.getOne.queryOptions({ userId: initialValues.id })
+            trpc.agents.getOne.queryOptions({ id: initialValues.id })
           );
         }
 
@@ -87,7 +89,11 @@ export default function AgentForm({
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="e.g. Math tutor" autoComplete={"off"} />
+                <Input
+                  {...field}
+                  placeholder="e.g. Math tutor"
+                  autoComplete={"off"}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

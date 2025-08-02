@@ -8,6 +8,7 @@ import { DataTable } from "../components/data-table";
 import { EmptyState } from "@/components/empty-state";
 import useAgentsFilter from "../../hooks/useAgentsFilters";
 import { DataTablePagination } from "@/components/data-table-pagination";
+import { redirect } from "next/navigation";
 
 export default function Page() {
   const trpc = useTRPC();
@@ -25,7 +26,11 @@ export default function Page() {
 
   return (
     <div className="space-y-4">
-      <DataTable columns={columns} data={data.items} />
+      <DataTable
+        columns={columns}
+        data={data.items}
+        onRowClick={(agentId) => redirect(`/agents/${agentId}`)}
+      />
       <DataTablePagination
         currentPage={filters.page}
         onPageChange={(pageNum) =>
