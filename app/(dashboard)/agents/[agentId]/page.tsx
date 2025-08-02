@@ -9,7 +9,6 @@ export default async function Page({
   params: Promise<{ agentId: string }>;
 }) {
   const { agentId } = await params;
-  console.log(agentId)
 
   const queryClient = getQueryClient();
   queryClient.prefetchQuery(trpc.agents.getOne.queryOptions({ id: agentId }));
