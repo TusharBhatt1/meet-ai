@@ -87,7 +87,7 @@ export default function AgentForm({
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="e.g. Math tutor" />
+                <Input {...field} placeholder="e.g. Math tutor" autoComplete={"off"} />
               </FormControl>
               <FormMessage />
             </FormItem>

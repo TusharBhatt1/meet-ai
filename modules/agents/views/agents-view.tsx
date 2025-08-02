@@ -14,7 +14,7 @@ export default function Page() {
     return (
       <EmptyState
         title="Create your first agent"
-        description="Give instructions and the agent and work accordingly."
+        description="Give instructions and the agent will work accordingly."
       />
     );
   }

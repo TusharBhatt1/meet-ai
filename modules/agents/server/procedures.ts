@@ -39,7 +39,7 @@ export const agentsRouter = createTRPCRouter({
       return {
         createdAgent,
         success: true,
-        message: `${input.name} agent created !`,
+        message: `${input.name} created !`,
       };
     }),
 });
