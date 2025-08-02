@@ -2,6 +2,7 @@
 
 import {
   ColumnDef,
+  RowData,
   flexRender,
   getCoreRowModel,
   useReactTable,
@@ -12,11 +13,13 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  onRowClick?: (row: RowData) => number;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  onRowClick,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -32,10 +35,16 @@ export function DataTable<TData, TValue>({
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
+                className="md:py-4 py-2"
+                //@ts-expect-error todo
+                onClick={() => onRowClick?.(row.original.id)}
                 data-state={row.getIsSelected() && "selected"}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="md:py-4 py-2 cursor-pointer">
+                  <TableCell
+                    key={cell.id}
+                    className="max-w-[250px] text-center truncate"
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
