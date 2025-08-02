@@ -13,9 +13,7 @@ export default function AgentIdView({ agentId }: { agentId: string }) {
   return (
     <>
       <AgentIdHeader
-        name={data.name}
-        instructions={data.instructions}
-        meetingCount={data.meetingCount}
+        data={data}
       />
     </>
   );

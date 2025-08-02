@@ -38,25 +38,6 @@ export default function AgentForm({
 
   const isEdit = !!initialValues;
 
-  const { mutateAsync: createAgent, isPending } = useMutation(
-    trpc.agents.create.mutationOptions({
-      onSuccess: async (res) => {
-        await queryClient.invalidateQueries(
-          trpc.agents.getMany.queryOptions({})
-        );
-
-        if (isEdit) {
-          queryClient.invalidateQueries(
-            trpc.agents.getOne.queryOptions({ id: initialValues.id })
-          );
-        }
-
-        toast.success(res.message);
-      },
-      onError: (e) => toast.error(e.message),
-    })
-  );
-
   const form = useForm<z.infer<typeof createAgentSchema>>({
     resolver: zodResolver(createAgentSchema),
     defaultValues: {
@@ -65,9 +46,33 @@ export default function AgentForm({
     },
   });
 
+  const { mutateAsync: createAgent, isPending } = useMutation(
+    trpc.agents.create.mutationOptions({
+      onSuccess: async (res) => {
+        await queryClient.invalidateQueries(
+          trpc.agents.getMany.queryOptions({})
+        );
+        // TODO: invalidate free tier usage
+
+        toast.success(res.message);
+      },
+      onError: (e) => toast.error(e.message),
+    })
+  );
+
+  const { mutateAsync: updateAgent, isPending: isUpdating } = useMutation(
+    trpc.agents.update.mutationOptions({
+      onSuccess: () => toast.success("Agent updated successfully."),
+      onError: (e) => toast.error(e.message),
+    })
+  );
+
   const onSubmit = async (data: z.infer<typeof createAgentSchema>) => {
     if (isEdit) {
-      console.log("todo");
+      await updateAgent({ id: initialValues.id, ...data });
+      queryClient.invalidateQueries(
+        trpc.agents.getOne.queryOptions({ id: initialValues.id })
+      );
     } else {
       await createAgent({ ...data });
     }
@@ -115,10 +120,14 @@ export default function AgentForm({
             </FormItem>
           )}
         />
-        <div className="space-x-4 mt-12">
-          <Button type="submit" disabled={isPending}>
-            {isEdit ? "Edit" : "Create"}
-            {isPending && <LoaderCircleIcon className="animate-spin" />}
+        <div className="flex justify-end gap-4 mt-12">
+          <Button
+            type="submit"
+            disabled={!form.formState.isDirty || isPending || isUpdating}
+          >
+            {isEdit ? "Update" : "Create"}
+            {isPending ||
+              (isUpdating && <LoaderCircleIcon className="animate-spin" />)}
           </Button>
           {onCancel && (
             <Button

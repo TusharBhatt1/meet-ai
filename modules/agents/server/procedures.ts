@@ -1,7 +1,7 @@
 import { db } from "@/app/db";
 import { agents } from "@/app/db/schema";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
-import { createAgentSchema } from "../schemas";
+import { createAgentSchema, updateAgentSchema } from "../schemas";
 import z from "zod";
 import { and, count, desc, eq, getTableColumns, ilike, sql } from "drizzle-orm";
 import {
@@ -51,8 +51,8 @@ export const agentsRouter = createTRPCRouter({
     .query(async ({ input, ctx }) => {
       const { page, pageSize, search } = input;
       const data = await db
-      .select({ meetingCount: sql<number>`5`, ...getTableColumns(agents) })
-      .from(agents)
+        .select({ meetingCount: sql<number>`5`, ...getTableColumns(agents) })
+        .from(agents)
         .where(
           and(
             eq(agents.userId, ctx.auth.user.id),
@@ -93,5 +93,40 @@ export const agentsRouter = createTRPCRouter({
         success: true,
         message: `${input.name} created !`,
       };
+    }),
+
+  update: protectedProcedure
+    .input(updateAgentSchema)
+    .mutation(async ({ input, ctx }) => {
+      const [updatedAgent] = await db
+        .update(agents)
+        .set(input)
+        .where(
+          and(eq(agents.id, input.id), eq(agents.userId, ctx.auth.user.id))
+        )
+        .returning();
+
+      if (!updatedAgent)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+        });
+      return { success: true, message: "Agent updated !" };
+    }),
+
+  delete: protectedProcedure
+    .input(
+      z.object({
+        agentId: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      await db
+        .delete(agents)
+        .where(
+          and(eq(agents.id, input.agentId), eq(agents.userId, ctx.auth.user.id))
+        )
+        .returning();
+
+      return { success: true, message: "Agent Deleted !" };
     }),
 });

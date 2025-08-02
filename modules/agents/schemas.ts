@@ -5,4 +5,8 @@ const createAgentSchema = z.object({
   instructions: z.string().min(5, { message: "Minimum 5 characters" }),
 });
 
-export { createAgentSchema };
+const updateAgentSchema = createAgentSchema.extend({
+  id: z.string(),
+});
+
+export { createAgentSchema, updateAgentSchema };
