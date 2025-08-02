@@ -1,3 +1,4 @@
+import { LoadingState } from "@/components/loading-state";
 import MeetingsView from "@/modules/meetings/views/meetings-view";
 import { getQueryClient, trpc } from "@/trpc/server";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
@@ -10,7 +11,7 @@ export default function Page() {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <Suspense fallback={<p>loading...</p>}>
+      <Suspense fallback={<LoadingState/>}>
         <MeetingsView />
       </Suspense>
     </HydrationBoundary>

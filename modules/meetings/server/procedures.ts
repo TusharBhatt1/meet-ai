@@ -7,7 +7,8 @@ import {
   MAX_PAGE_SIZE,
 } from "@/constants";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
-import { and, asc, eq, ilike } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
+import { and, asc, count, eq, ilike } from "drizzle-orm";
 import z from "zod";
 
 export const meetingsRouter = createTRPCRouter({
@@ -24,6 +25,13 @@ export const meetingsRouter = createTRPCRouter({
         .where(
           and(eq(meetings.id, input.id), eq(meetings.userId, ctx.auth.user.id))
         );
+
+      if (!meeting)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Agent not found !",
+        });
+
       return { meeting, success: true };
     }),
 
@@ -53,12 +61,15 @@ export const meetingsRouter = createTRPCRouter({
         .orderBy(asc(meetings.createdAt))
         .offset((pageNumber - 1) * pageSize);
 
-      const total = allMeetings.length;
+      const [total] = await db
+        .select({ count: count() })
+        .from(meetings)
+        .where(eq(meetings.id, ctx.auth.user.id));
 
       return {
         total,
         items: allMeetings,
-        totalPages: Math.ceil(total / pageSize),
+        totalPages: Math.ceil(total.count / pageSize),
       };
     }),
 });

@@ -26,7 +26,7 @@ export default function AgentsHeader() {
           <Plus /> New agent
         </Button>
       </div>
-      {data?.items.length ? (
+      {data?.total ? (
         <div className="flex gap-3">
           <div className="relative w-42">
             <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground size-4" />
