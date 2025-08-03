@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import z from "zod";
-import { createAgentSchema } from "../schemas";
+import { createMeetingSchema } from "../schema";
 import {
   Form,
   FormControl,
@@ -14,67 +14,77 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { AgentGetOne } from "../types";
 import { useTRPC } from "@/trpc/client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Textarea } from "@/components/ui/textarea";
-import GeneratedAvatar from "@/modules/dashboard/generated-avatar";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { LoaderCircleIcon } from "lucide-react";
+import { MeetingGetOne } from "../types";
 
-interface AgentFormProps {
+import { ComboBox } from "@/components/ui/combobox";
+import GeneratedAvatar from "@/modules/dashboard/generated-avatar";
+import { useState } from "react";
+
+interface MeetingFormProps {
   onSuccess?: () => void;
   onCancel?: () => void;
-  initialValues?: AgentGetOne;
+  initialValues?: MeetingGetOne;
 }
 
-export default function AgentForm({
+export default function MeetingForm({
   initialValues,
   onSuccess,
   onCancel,
-}: AgentFormProps) {
+}: MeetingFormProps) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
+  const [search, setSearchTerm] = useState("");
+
+  const { data: agents } = useQuery(
+    trpc.agents.getMany.queryOptions({
+      search,
+      pageSize: 20,
+    })
+  );
+
   const isEdit = !!initialValues;
 
-  const form = useForm<z.infer<typeof createAgentSchema>>({
-    resolver: zodResolver(createAgentSchema),
+  const form = useForm<z.infer<typeof createMeetingSchema>>({
+    resolver: zodResolver(createMeetingSchema),
     defaultValues: {
       name: initialValues?.name || "",
-      instructions: initialValues?.instructions || "",
+      agentId: initialValues?.agentId || "",
     },
   });
 
-  const { mutateAsync: createAgent, isPending } = useMutation(
-    trpc.agents.create.mutationOptions({
+  const { mutateAsync: createMeeting, isPending } = useMutation(
+    trpc.meetings.create.mutationOptions({
       onSuccess: async (res) => {
         await queryClient.invalidateQueries(
-          trpc.agents.getMany.queryOptions({})
+          trpc.meetings.getMany.queryOptions({})
         );
-        // TODO: invalidate free tier usage
-
         toast.success(res.message);
       },
       onError: (e) => toast.error(e.message),
     })
   );
 
-  const { mutateAsync: updateAgent, isPending: isUpdating } = useMutation(
-    trpc.agents.update.mutationOptions({
-      onSuccess: () => toast.success("Agent updated successfully."),
+  const { mutateAsync: updateMeeting, isPending: isUpdating } = useMutation(
+    trpc.meetings.update.mutationOptions({
+      onSuccess: () => toast.success("Meeting updated successfully."),
       onError: (e) => toast.error(e.message),
     })
   );
 
-  const onSubmit = async (data: z.infer<typeof createAgentSchema>) => {
+  const onSubmit = async (data: z.infer<typeof createMeetingSchema>) => {
     if (isEdit) {
-      await updateAgent({ id: initialValues.id, ...data });
+      await updateMeeting({ id: initialValues.id, ...data });
       queryClient.invalidateQueries(
-        trpc.agents.getOne.queryOptions({ id: initialValues.id })
+        trpc.meetings.getOne.queryOptions({ id: initialValues.id })
       );
     } else {
-      await createAgent({ ...data });
+      console.log(data);
+      await createMeeting({ ...data });
     }
     onSuccess?.();
   };
@@ -82,11 +92,6 @@ export default function AgentForm({
   return (
     <Form {...form}>
       <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-        <GeneratedAvatar
-          seed={form.watch("name")}
-          variant="botttsNeutral"
-          className="size-16"
-        />
         <FormField
           control={form.control}
           name="name"
@@ -96,7 +101,7 @@ export default function AgentForm({
               <FormControl>
                 <Input
                   {...field}
-                  placeholder="e.g. Math tutor"
+                  placeholder="e.g. Weekend concert"
                   autoComplete={"off"}
                 />
               </FormControl>
@@ -106,17 +111,35 @@ export default function AgentForm({
         />
         <FormField
           control={form.control}
-          name="instructions"
+          name="agentId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Instructions</FormLabel>
+              <FormLabel>Agent</FormLabel>
               <FormControl>
-                <Textarea
-                  {...field}
-                  placeholder="You are a math tutor that can answer questions and do tasks"
+                <ComboBox
+                //@ts-expect-error TODO
+                  options={agents?.items.map((a) => ({
+                    label: a.name,
+                    value: a.id,
+                    children: (
+                      <div className="flex items-center gap-2">
+                        <GeneratedAvatar
+                          seed={a.name}
+                          variant="botttsNeutral"
+                          className="size-4"
+                        />
+                        <span>{a.name}</span>
+                      </div>
+                    ),
+                  }))}
+
+                  value={field.value}
+                  onValueChange={(value) => console.log(value)}
+                  onSelect={field.onChange}
+                  onSearch={setSearchTerm}
+                  placeholder="Select an agent."  
                 />
               </FormControl>
-              <FormMessage />
             </FormItem>
           )}
         />

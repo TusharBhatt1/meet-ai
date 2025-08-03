@@ -8,7 +8,7 @@ import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { Suspense } from "react";
-import { loadSearchParams } from "@/modules/hooks/useServerSearchParams";
+import { loadSearchParams } from "@/modules/hooks/useServerAgentsParams";
 import type { SearchParams } from "nuqs/server";
 
 type PageProps = {

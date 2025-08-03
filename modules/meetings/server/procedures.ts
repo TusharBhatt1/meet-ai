@@ -10,6 +10,7 @@ import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
 import { and, asc, count, eq, ilike } from "drizzle-orm";
 import z from "zod";
+import { createMeetingSchema, updateMeetingSchema } from "../schema";
 
 export const meetingsRouter = createTRPCRouter({
   getOne: protectedProcedure
@@ -58,18 +59,52 @@ export const meetingsRouter = createTRPCRouter({
             search ? ilike(meetings.name, `%${search}%`) : undefined
           )
         )
+        .limit(pageSize)
         .orderBy(asc(meetings.createdAt))
         .offset((pageNumber - 1) * pageSize);
 
       const [total] = await db
         .select({ count: count() })
         .from(meetings)
-        .where(eq(meetings.id, ctx.auth.user.id));
+        .where(eq(meetings.userId, ctx.auth.user.id));
 
       return {
         total,
         items: allMeetings,
         totalPages: Math.ceil(total.count / pageSize),
       };
+    }),
+
+  create: protectedProcedure
+    .input(createMeetingSchema)
+    .mutation(async ({ input, ctx }) => {
+      const createdMeeting = await db.insert(meetings).values({
+        ...input,
+        userId: ctx.auth.user.id,
+      });
+
+      return {
+        createdMeeting,
+        success: true,
+        message: `${input.name} created !`,
+      };
+    }),
+
+  update: protectedProcedure
+    .input(updateMeetingSchema)
+    .mutation(async ({ input, ctx }) => {
+      const [updatedAgent] = await db
+        .update(meetings)
+        .set(input)
+        .where(
+          and(eq(meetings.id, input.id), eq(meetings.userId, ctx.auth.user.id))
+        )
+        .returning();
+
+      if (!updatedAgent)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+        });
+      return { success: true, message: "Agent updated !" };
     }),
 });
