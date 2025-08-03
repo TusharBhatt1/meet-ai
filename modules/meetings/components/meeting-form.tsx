@@ -56,8 +56,8 @@ export default function MeetingForm({
   const form = useForm<z.infer<typeof createMeetingSchema>>({
     resolver: zodResolver(createMeetingSchema),
     defaultValues: {
-      name: initialValues?.name || "",
-      agentId: initialValues?.agentId || "",
+      name: initialValues?.meetings.name || "",
+      agentId: initialValues?.meetings.agentId || "",
     },
   });
 
@@ -82,9 +82,9 @@ export default function MeetingForm({
 
   const onSubmit = async (data: z.infer<typeof createMeetingSchema>) => {
     if (isEdit) {
-      await updateMeeting({ id: initialValues.id, ...data });
+      await updateMeeting({ id: initialValues.meetings.id, ...data });
       queryClient.invalidateQueries(
-        trpc.meetings.getOne.queryOptions({ id: initialValues.id })
+        trpc.meetings.getOne.queryOptions({ id: initialValues.meetings.id })
       );
     } else {
       console.log(data);
