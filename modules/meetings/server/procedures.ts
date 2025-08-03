@@ -11,6 +11,7 @@ import { TRPCError } from "@trpc/server";
 import { and, asc, count, eq, ilike, getTableColumns, sql } from "drizzle-orm";
 import z from "zod";
 import { createMeetingSchema, updateMeetingSchema } from "../schema";
+import { MeetingStatus } from "../types";
 
 export const meetingsRouter = createTRPCRouter({
   getOne: protectedProcedure
@@ -40,40 +41,62 @@ export const meetingsRouter = createTRPCRouter({
     .input(
       z.object({
         pageSize: z.number().max(MAX_PAGE_SIZE).default(DEFAULT_PAGE_SIZE),
-        pageNumber: z
+        page: z
           .number()
           .max(MAX_PAGE_NUMBER)
           .default(DEFAULT_PAGE_NUMBER),
         search: z.string().default(""),
+        agentId: z.string().nullish(),
+        status: z
+          .enum([
+            MeetingStatus["Upcoming"],
+            MeetingStatus["Active"],
+            MeetingStatus["Completed"],
+            MeetingStatus["Processing"],
+            MeetingStatus["Cancelled"],
+          ])
+          .nullish(),
       })
     )
     .query(async ({ input, ctx }) => {
-      const { pageNumber, pageSize, search } = input;
+      const { page, pageSize, search, agentId, status } = input;
 
       const allMeetings = await db
         .select({
           ...getTableColumns(meetings),
           agent: agents,
           //TO LEARN
-          duration: sql<number>`EXTRACT(EPOCH FROM ("ended_at"-"started_at"))`.as("duration")
+          duration:
+            sql<number>`EXTRACT(EPOCH FROM ("ended_at"-"started_at"))`.as(
+              "duration"
+            ),
         })
         .from(meetings)
         .innerJoin(agents, eq(meetings.agentId, agents.id))
         .where(
           and(
             eq(meetings.userId, ctx.auth.user.id),
-            search ? ilike(meetings.name, `%${search}%`) : undefined
+            search ? ilike(meetings.name, `%${search}%`) : undefined,
+            agentId ? eq(meetings.agentId, agentId) : undefined,
+            status ? eq(meetings.status, status) : undefined
           )
         )
         .limit(pageSize)
         .orderBy(asc(meetings.createdAt))
-        .offset((pageNumber - 1) * pageSize);
+        .offset((page - 1) * pageSize);
 
       const [total] = await db
         .select({ count: count() })
         .from(meetings)
         .innerJoin(agents, eq(meetings.agentId, agents.id))
-        .where(eq(meetings.userId, ctx.auth.user.id));
+        .where(
+          and(
+            eq(meetings.userId, ctx.auth.user.id),
+            search ? ilike(meetings.name, `%${search}%`) : undefined,
+            agentId ? eq(meetings.agentId, agentId) : undefined,
+            status ? eq(meetings.status, status) : undefined
+          )
+        );
 
       return {
         total,

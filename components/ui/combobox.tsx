@@ -18,10 +18,11 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import React from "react";
+import GeneratedAvatar from "@/modules/dashboard/generated-avatar";
 
-type Option = { 
-  label: string; 
-  value: string; 
+type Option = {
+  label: string;
+  value: string;
   children?: React.ReactNode;
 };
 
@@ -36,6 +37,7 @@ interface ComboBoxProps {
   searchPlaceholder?: string;
   emptyMessage?: string;
   disabled?: boolean;
+  showAvatar?: boolean;
 }
 
 export function ComboBox({
@@ -49,6 +51,7 @@ export function ComboBox({
   searchPlaceholder = "Search...",
   emptyMessage = "No result found.",
   disabled = false,
+  showAvatar = false,
 }: ComboBoxProps) {
   const [open, setOpen] = useState(false);
 
@@ -71,14 +74,23 @@ export function ComboBox({
           disabled={disabled}
           className={cn("w-[250px] justify-between", className)}
         >
-          {selected?.label || placeholder}
+          <div className="flex items-center gap-3">
+            {showAvatar && selected?.label && (
+              <GeneratedAvatar
+                seed={selected?.label}
+                variant="botttsNeutral"
+                className="size-4"
+              />
+            )}
+            {selected?.label || placeholder}
+          </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[250px] p-0">
         <Command>
-          <CommandInput 
-            placeholder={searchPlaceholder} 
+          <CommandInput
+            placeholder={searchPlaceholder}
             onValueChange={onSearch}
           />
           <CommandList>

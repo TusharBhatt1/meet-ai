@@ -35,7 +35,7 @@ export function DataTable<TData, TValue>({
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
-                className="md:py-4 py-2 cursor-pointer"
+                className="cursor-pointer"
                 //@ts-expect-error todo
                 onClick={() => onRowClick?.(row.original.id)}
                 data-state={row.getIsSelected() && "selected"}
@@ -43,7 +43,7 @@ export function DataTable<TData, TValue>({
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
                     key={cell.id}
-                    className="max-w-[250px] truncate"
+                    className="max-w-[250px] truncate p-2.5"
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>

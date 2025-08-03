@@ -146,6 +146,7 @@ export default function MeetingForm({
                     onSelect={field.onChange}
                     onSearch={setSearchTerm}
                     placeholder="Select an agent."
+                    showAvatar
                   />
                 </FormControl>
                 <FormDescription className="my-3">
