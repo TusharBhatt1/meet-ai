@@ -49,13 +49,15 @@ export const columns: ColumnDef<MeetingGetMany[number]>[] = [
     cell: ({ row }) => (
       <div>
         <span className="font-semibold capitalize">{row.original.name}</span>
-        <div className="flex items-center gap-2 m-2">
+        <div className="flex items-center gap-2 my-2">
           <GeneratedAvatar
             seed={row.original.agent.name}
             variant="botttsNeutral"
             className="size-4"
           />
-          <span className="text-muted-foreground text-xs">{row.original.agent.name}</span>
+          <span className="text-muted-foreground text-xs">
+            {row.original.agent.name}
+          </span>
         </div>
       </div>
     ),
