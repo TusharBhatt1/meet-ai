@@ -24,6 +24,7 @@ export const meetingsRouter = createTRPCRouter({
       const [meeting] = await db
         .select()
         .from(meetings)
+        .innerJoin(agents, eq(meetings.agentId, agents.id))
         .where(
           and(eq(meetings.id, input.id), eq(meetings.userId, ctx.auth.user.id))
         );
@@ -41,10 +42,7 @@ export const meetingsRouter = createTRPCRouter({
     .input(
       z.object({
         pageSize: z.number().max(MAX_PAGE_SIZE).default(DEFAULT_PAGE_SIZE),
-        page: z
-          .number()
-          .max(MAX_PAGE_NUMBER)
-          .default(DEFAULT_PAGE_NUMBER),
+        page: z.number().max(MAX_PAGE_NUMBER).default(DEFAULT_PAGE_NUMBER),
         search: z.string().default(""),
         agentId: z.string().nullish(),
         status: z
@@ -136,5 +134,25 @@ export const meetingsRouter = createTRPCRouter({
           code: "NOT_FOUND",
         });
       return { success: true, message: "Agent updated !" };
+    }),
+  delete: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const [updatedAgent] = await db
+        .delete(meetings)
+        .where(
+          and(eq(meetings.id, input.id), eq(meetings.userId, ctx.auth.user.id))
+        )
+        .returning();
+
+      if (!updatedAgent)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+        });
+      return { success: true, message: "Agent deleted !" };
     }),
 });
