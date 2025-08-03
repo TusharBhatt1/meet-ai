@@ -1,17 +1,63 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { MeetingGetOne } from "../types";
-import { Ban, CheckCircle, Clock, Loader } from "lucide-react";
+import { MeetingGetMany } from "../types";
+import {
+  CircleCheckIcon,
+  CircleXIcon,
+  ClockArrowUpIcon,
+  ClockFadingIcon,
+  Loader,
+  LoaderIcon,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { JSX } from "react";
+import { meetingStatus } from "@/app/db/schema";
+import { cn } from "@/lib/utils";
+import humanizeDuration from "humanize-duration";
+import GeneratedAvatar from "@/modules/dashboard/generated-avatar";
 
-export const columns: ColumnDef<MeetingGetOne>[] = [
+const formatDuration = (seconds: number) => {
+  return humanizeDuration(seconds * 1000, {
+    largest: 1,
+    round: true,
+    units: ["h", "m", "s"],
+  });
+};
+
+type MeetingStatus = (typeof meetingStatus.enumValues)[number];
+
+const statusIconMap: Record<MeetingStatus, React.ElementType> = {
+  upcoming: ClockArrowUpIcon,
+  active: LoaderIcon,
+  completed: CircleCheckIcon,
+  processing: Loader,
+  cancelled: CircleXIcon,
+};
+
+export const statusColorMap: Record<MeetingStatus, string> = {
+  upcoming: "bg-yellow-500/20 text-yellow-800 border-yellow-800/5",
+  active: "bg-blue-500/20 text-blue-800 border-blue-800/5",
+  processing: "bg-gray-300/20 text-gray-800 border-gray-800/5",
+  completed: "bg-emerald-500/20 text-emerald-800 border-emerald-800/5",
+  cancelled: "bg-gray-500/20 text-rose-800 border-rose-800/5",
+};
+
+export const columns: ColumnDef<MeetingGetMany[number]>[] = [
   {
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => (
-      <span className="font-semibold capitalize">{row.original.name}</span>
+      <div>
+        <span className="font-semibold capitalize">{row.original.name}</span>
+        <div className="flex items-center gap-2 m-2">
+          <GeneratedAvatar
+            seed={row.original.agent.name}
+            variant="botttsNeutral"
+            className="size-4"
+          />
+          <span className="text-muted-foreground text-xs">{row.original.agent.name}</span>
+        </div>
+      </div>
     ),
   },
 
@@ -19,54 +65,42 @@ export const columns: ColumnDef<MeetingGetOne>[] = [
     accessorKey: "summary",
     header: "Summary",
   },
-
   {
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-      const status = row.getValue("status") as string;
+      const status = row.original.status;
 
-      const statusMap: Record<
-        string,
-        { label: string; icon: JSX.Element; className: string }
-      > = {
-        upcoming: {
-          label: "Upcoming",
-          icon: <Clock className="w-3 h-3" />,
-          className: "border-blue-100 text-blue-700",
-        },
-        active: {
-          label: "Active",
-          icon: <CheckCircle className="w-3 h-3" />,
-          className: "border-green-100 text-green-700",
-        },
-        procession: {
-          label: "Procession",
-          icon: <Loader className="w-3 h-3 animate-spin" />,
-          className: "border-sky-100 text-sky-700",
-        },
-        cancelled: {
-          label: "Cancelled",
-          icon: <Ban className="w-3 h-3" />,
-          className: "border-red-100 text-red-700",
-        },
-      };
-
-      const { label, icon, className } = statusMap[status] ?? {
-        label: "Unknown",
-        icon: <Ban className="w-3 h-3" />,
-        className: "border-muted text-muted-foreground",
-      };
+      const Icon = statusIconMap[status];
 
       return (
         <Badge
-          variant={"outline"}
-          className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md ${className}`}
+          variant="outline"
+          className={cn(
+            "capitalize [&>svg]:size-4 text-muted-foreground",
+            statusColorMap[status]
+          )}
         >
-          {icon}
-          {label}
+          <Icon className={cn(status === "processing" && "animate-spin")} />
+          {status}
         </Badge>
       );
     },
+  },
+
+  {
+    accessorKey: "duration",
+    header: "Duration",
+    cell: ({ row }) => (
+      <Badge
+        variant={"outline"}
+        className="capitalize [&>svg]:size-4 flex items-center gap-x-2"
+      >
+        <ClockFadingIcon className="text-blue-500" />
+        {row.original.duration
+          ? formatDuration(row.original.duration)
+          : "No duration yet"}
+      </Badge>
+    ),
   },
 ];

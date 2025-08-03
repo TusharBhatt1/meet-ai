@@ -54,6 +54,7 @@ export const meetingsRouter = createTRPCRouter({
         .select({
           ...getTableColumns(meetings),
           agent: agents,
+          //TO LEARN
           duration: sql<number>`EXTRACT(EPOCH FROM ("ended_at"-"started_at"))`.as("duration")
         })
         .from(meetings)

@@ -18,7 +18,7 @@ export default function Page() {
     return (
       <EmptyState
         title="Create your first meeting"
-        description="Give instructions and the agent will work accordingly."
+        description="Schedule a meeting to connect with others in real time."
       />
     );
   }
