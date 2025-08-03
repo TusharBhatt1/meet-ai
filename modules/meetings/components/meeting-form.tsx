@@ -57,7 +57,7 @@ export default function MeetingForm({
     resolver: zodResolver(createMeetingSchema),
     defaultValues: {
       name: initialValues?.meetings.name || "",
-      agentId: initialValues?.meetings.agentId || "",
+      agentId: initialValues?.agents.id || "",
     },
   });
 
