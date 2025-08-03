@@ -24,9 +24,9 @@ const formatDuration = (seconds: number) => {
   });
 };
 
-type MeetingStatus = (typeof meetingStatus.enumValues)[number];
+type status = (typeof meetingStatus.enumValues)[number];
 
-const statusIconMap: Record<MeetingStatus, React.ElementType> = {
+export const statusIconMap: Record<status, React.ElementType> = {
   upcoming: ClockArrowUpIcon,
   active: LoaderIcon,
   completed: CircleCheckIcon,
@@ -34,7 +34,7 @@ const statusIconMap: Record<MeetingStatus, React.ElementType> = {
   cancelled: CircleXIcon,
 };
 
-export const statusColorMap: Record<MeetingStatus, string> = {
+export const statusColorMap: Record<status, string> = {
   upcoming: "bg-yellow-500/20 text-yellow-800 border-yellow-800/5",
   active: "bg-blue-500/20 text-blue-800 border-blue-800/5",
   processing: "bg-gray-300/20 text-gray-800 border-gray-800/5",

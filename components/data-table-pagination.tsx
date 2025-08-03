@@ -29,10 +29,11 @@ export function DataTablePagination({
         >
           <PaginationPrevious onClick={() => onPageChange(currentPage - 1)} />
         </PaginationItem>
-        {Array.from({ length: totalPages }).map((i, n) => {
+        {Array.from({ length: totalPages }).map((_, n) => {
           const pageCount = n + 1;
+
           return (
-            <PaginationItem key={`pagenumber-${i}`}>
+            <PaginationItem key={`pagenumber-${pageCount}`}>
               <PaginationLink
                 className="cursor-pointer"
                 isActive={currentPage === pageCount}

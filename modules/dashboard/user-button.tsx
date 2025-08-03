@@ -21,7 +21,7 @@ export default function UserButton() {
 
   return (
     <DropdownMenu onOpenChange={setOpen}>
-      <DropdownMenuTrigger className="w-full mb-2">
+      <DropdownMenuTrigger className="w-full mb-2 text-sm">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-3 truncate">
             {data.user.image ? (

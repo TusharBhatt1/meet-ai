@@ -5,13 +5,13 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { columns } from "../components/meetings-data-columns"
 import { DataTable } from "@/components/data-table";
 import { EmptyState } from "@/components/empty-state";
-import useAgentsFilter from "../../hooks/useAgentsFilters";
 import { DataTablePagination } from "@/components/data-table-pagination";
 import { redirect } from "next/navigation";
+import useMeetingsFilter from "../hooks/useMeetingsFilters";
 
 export default function Page() {
   const trpc = useTRPC();
-  const { filters, setFilters } = useAgentsFilter();
+  const { filters, setFilters } = useMeetingsFilter();
   const { data } = useSuspenseQuery(trpc.meetings.getMany.queryOptions(filters));
 
   if (!data.items.length) {
