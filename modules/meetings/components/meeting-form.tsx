@@ -117,7 +117,7 @@ export default function MeetingForm({
               <FormLabel>Agent</FormLabel>
               <FormControl>
                 <ComboBox
-                //@ts-expect-error TODO
+                  //@ts-expect-error TODO
                   options={agents?.items.map((a) => ({
                     label: a.name,
                     value: a.id,
@@ -132,12 +132,11 @@ export default function MeetingForm({
                       </div>
                     ),
                   }))}
-
                   value={field.value}
                   onValueChange={(value) => console.log(value)}
                   onSelect={field.onChange}
                   onSearch={setSearchTerm}
-                  placeholder="Select an agent."  
+                  placeholder="Select an agent."
                 />
               </FormControl>
             </FormItem>
@@ -149,8 +148,9 @@ export default function MeetingForm({
             disabled={!form.formState.isDirty || isPending || isUpdating}
           >
             {isEdit ? "Update" : "Create"}
-            {isPending ||
-              isUpdating && <LoaderCircleIcon className="animate-spin" />}
+            {(isPending || isUpdating) && (
+              <LoaderCircleIcon className="animate-spin" />
+            )}
           </Button>
           {onCancel && (
             <Button
