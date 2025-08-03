@@ -1,5 +1,5 @@
 import { db } from "@/app/db";
-import { meetings } from "@/app/db/schema";
+import { agents, meetings } from "@/app/db/schema";
 import {
   DEFAULT_PAGE_NUMBER,
   DEFAULT_PAGE_SIZE,
@@ -8,7 +8,7 @@ import {
 } from "@/constants";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
-import { and, asc, count, eq, ilike } from "drizzle-orm";
+import { and, asc, count, eq, ilike, getTableColumns, sql } from "drizzle-orm";
 import z from "zod";
 import { createMeetingSchema, updateMeetingSchema } from "../schema";
 
@@ -51,8 +51,13 @@ export const meetingsRouter = createTRPCRouter({
       const { pageNumber, pageSize, search } = input;
 
       const allMeetings = await db
-        .select()
+        .select({
+          ...getTableColumns(meetings),
+          agent: agents,
+          duration: sql<number>`EXTRACT(EPOCH FROM ("ended_at"-"started_at"))`.as("duration")
+        })
         .from(meetings)
+        .innerJoin(agents, eq(meetings.agentId, agents.id))
         .where(
           and(
             eq(meetings.userId, ctx.auth.user.id),
@@ -66,6 +71,7 @@ export const meetingsRouter = createTRPCRouter({
       const [total] = await db
         .select({ count: count() })
         .from(meetings)
+        .innerJoin(agents, eq(meetings.agentId, agents.id))
         .where(eq(meetings.userId, ctx.auth.user.id));
 
       return {
