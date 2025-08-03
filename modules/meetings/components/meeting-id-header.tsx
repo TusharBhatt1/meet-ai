@@ -25,6 +25,9 @@ import { useState } from "react";
 import { MeetingGetOne } from "../types";
 import { UpdateMeetingDialog } from "./update-meeting-dialog";
 import GeneratedAvatar from "@/modules/dashboard/generated-avatar";
+import { Badge } from "@/components/ui/badge";
+import { statusColorMap, statusIconMap } from "./meetings-data-columns";
+import { cn } from "@/lib/utils";
 
 export default function MeetingIdHeader({ data }: { data: MeetingGetOne }) {
   const { meetings, agents } = data;
@@ -47,6 +50,9 @@ export default function MeetingIdHeader({ data }: { data: MeetingGetOne }) {
       },
     })
   );
+
+  const { status } = meetings;
+  const StatusIcon = statusIconMap[status];
 
   return (
     <div className="space-y-4">
@@ -111,15 +117,29 @@ export default function MeetingIdHeader({ data }: { data: MeetingGetOne }) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="bg-background p-4 space-y-4 rounded-xl">
-        <p className="font-bold text-xl mb-4">{meetings.name}</p>
-        <div className="flex gap-4 items-center ml-4 text-sm">
+      <div className="bg-background p-4 space-y-4 rounded-t-xl">
+        <div className="mb-4 space-y-3">
+          <p className="font-bold text-xl">{meetings.name}</p>
+          <Badge
+            variant="outline"
+            className={cn(
+              "capitalize [&>svg]:size-4 text-muted-foreground",
+              statusColorMap[status]
+            )}
+          >
+            <StatusIcon
+              className={cn(status === "processing" && "animate-spin")}
+            />
+            {status}
+          </Badge>
+        </div>
+        <div className="flex gap-4 items-center text-sm">
           <GeneratedAvatar
             seed={agents.name}
             variant="botttsNeutral"
             className="size-5"
           />
-          <span>{agents.name}</span>
+          <span className="text-muted-foreground">{agents.name}</span>
         </div>
       </div>
     </div>
