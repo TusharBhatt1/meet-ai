@@ -126,8 +126,9 @@ export default function AgentForm({
             disabled={!form.formState.isDirty || isPending || isUpdating}
           >
             {isEdit ? "Update" : "Create"}
-            {isPending ||
-              isUpdating && <LoaderCircleIcon className="animate-spin" />}
+            {(isPending || isUpdating) && (
+              <LoaderCircleIcon className="animate-spin" />
+            )}
           </Button>
           {onCancel && (
             <Button
