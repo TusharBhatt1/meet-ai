@@ -1,10 +1,45 @@
-"use client"
+"use client";
+
 import { useTRPC } from "@/trpc/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { columns } from "../components/meetings-data-columns"
+import { DataTable } from "@/components/data-table";
+import { EmptyState } from "@/components/empty-state";
+import useAgentsFilter from "../../hooks/useAgentsFilters";
+import { DataTablePagination } from "@/components/data-table-pagination";
+import { redirect } from "next/navigation";
 
-export default function MeetingsView() {
+export default function Page() {
   const trpc = useTRPC();
-  const { data } = useSuspenseQuery(trpc.meetings.getMany.queryOptions({}));
+  const { filters, setFilters } = useAgentsFilter();
+  const { data } = useSuspenseQuery(trpc.meetings.getMany.queryOptions(filters));
 
-  return <p>Meetings View: {JSON.stringify(data, null, 2)}</p>;
+  if (!data.items.length) {
+    return (
+      <EmptyState
+        title="Create your first meeting"
+        description="Give instructions and the agent will work accordingly."
+      />
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <DataTable
+        columns={columns}
+        data={data.items}
+        onRowClick={(meetingId) => redirect(`/meetings/${meetingId}`)}
+      />
+      <DataTablePagination
+        currentPage={filters.page}
+        onPageChange={(pageNum) =>
+          setFilters({
+            ...filters,
+            page: pageNum,
+          })
+        }
+        totalPages={data.totalPages}
+      />
+    </div>
+  );
 }

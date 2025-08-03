@@ -1,4 +1,5 @@
 import { LoadingState } from "@/components/loading-state";
+import MeetingsHeader from "@/modules/meetings/components/meetings-header";
 import MeetingsView from "@/modules/meetings/views/meetings-view";
 import { getQueryClient, trpc } from "@/trpc/server";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
@@ -10,10 +11,13 @@ export default function Page() {
   queryClient.prefetchQuery(trpc.meetings.getMany.queryOptions({}));
 
   return (
+    <div className="space-y-7">
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <Suspense fallback={<LoadingState/>}>
+      <MeetingsHeader />
+      <Suspense fallback={<LoadingState />}>
         <MeetingsView />
       </Suspense>
     </HydrationBoundary>
+    </div>
   );
 }
