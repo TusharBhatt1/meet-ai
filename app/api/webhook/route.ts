@@ -2,8 +2,10 @@ import { db } from "@/app/db";
 import { agents, meetings } from "@/app/db/schema";
 import { streamClient } from "@/lib/stream-client";
 import {
+    CallRecordingReadyEvent,
   CallSessionParticipantLeftEvent,
   CallSessionStartedEvent,
+  CallTranscriptionReadyEvent,
 } from "@stream-io/node-sdk";
 import { and, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
@@ -35,7 +37,6 @@ export async function POST(req: NextRequest) {
   }
 
   const eventType = (payload as Record<string, unknown>)?.type;
-  console.log("eventType is :", eventType);
 
   if (eventType === "call.session_started") {
     const event = payload as CallSessionStartedEvent;
@@ -96,8 +97,68 @@ export async function POST(req: NextRequest) {
 
     const call = streamClient.video.call("default", meetingId);
     await call.end();
-  }
+  } else if (eventType === "call.session_ended") {
+    const event = payload as CallSessionStartedEvent;
+    const meetingId = event.call.custom?.meetingId;
+    if (!meetingId) {
+      return NextResponse.json({ error: "Meeting ID found" }, { status: 400 });
+    }
 
-  console.log("outsideeee");
+    const [associatedMeeting] = await db
+      .select()
+      .from(meetings)
+      .where(and(eq(meetings.id, meetingId), eq(meetings.status, "active")));
+
+    if (!associatedMeeting)
+      return NextResponse.json({
+        error: "Meeting not found",
+        status: 404,
+      });
+
+    await db
+      .update(meetings)
+      .set({
+        status: "processing",
+        startedAt: new Date(),
+      })
+      .where(eq(meetings.id, associatedMeeting.id));
+  } else if (eventType === "call.transcription_ready") {
+    const event = payload as CallTranscriptionReadyEvent;
+    const meetingId = event.call_cid?.split(":")[1];
+
+    if (!meetingId) {
+      return NextResponse.json({ error: "Meeting ID found" }, { status: 400 });
+    }
+
+    const [updatedMeeting] = await db
+      .update(meetings)
+      .set({
+        transciptUrl: event.call_transcription.url,
+      })
+      .where(eq(meetings.id, meetingId)).returning();
+
+    if (!updatedMeeting) {
+      return NextResponse.json({ error: "Meeting not found" }, { status: 400 });
+    }
+  }
+  else if (eventType === "call.recording_ready") {
+    const event = payload as CallRecordingReadyEvent;
+    const meetingId = event.call_cid?.split(":")[1];
+
+    if (!meetingId) {
+      return NextResponse.json({ error: "Meeting ID found" }, { status: 400 });
+    }
+
+    const [updatedMeeting] = await db
+      .update(meetings)
+      .set({
+        recordingUrl: event.call_recording.url,
+      })
+      .where(eq(meetings.id, meetingId)).returning();
+
+    if (!updatedMeeting) {
+      return NextResponse.json({ error: "Meeting not found" }, { status: 400 });
+    }
+  }
   return NextResponse.json({ status: "ok" });
 }
