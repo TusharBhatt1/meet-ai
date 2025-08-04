@@ -21,7 +21,7 @@ export const UpcomingState = ({
         title="Not started yet !"
         description="This meeting hasn’t started yet. Once it begins, you’ll see the details here."
       />
-      <div className="flex gap-3">
+      <div className="flex gap-4 lg:flex-row flex-col">
         <Button
           variant="outline"
           onClick={onCancelMeeting}
@@ -31,7 +31,7 @@ export const UpcomingState = ({
           {isCancelling ? "Cancelling..." : "Cancel Meeting"}
         </Button>
         <Button disabled={isCancelling} asChild className="w-full lg:w-auto">
-          <Link href={`/meeting/call/${meetingId}`}>
+          <Link href={`/call/${meetingId}`}>
             <VideoIcon className="mr-2 size-4" />
             Start meeting
           </Link>
