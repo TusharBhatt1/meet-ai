@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
+import { Roboto } from "next/font/google";
 import "./globals.css";
 import { TRPCReactProvider } from "@/trpc/client";
 import { Toaster } from "@/components/ui/sonner";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
-const poppins = Poppins({
+const roboto = Roboto({
   weight: ["100", "300", "700"],
   subsets: ["latin"],
 });
@@ -24,7 +24,7 @@ export default function RootLayout({
       <NuqsAdapter>
         <Toaster />
         <html lang="en">
-          <body className={`${poppins.className} antialiased`}>{children}</body>
+          <body className={`${roboto.className} antialiased`}>{children}</body>
         </html>
       </NuqsAdapter>
     </TRPCReactProvider>

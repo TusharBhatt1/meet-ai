@@ -18,7 +18,7 @@ export const ActiveState = ({ meetingId }: Props) => {
       />
       <div className="flex gap-2">
         <Button asChild className="w-full lg:w-auto">
-          <Link href={`/meeting/${meetingId}`}>
+          <Link href={`/call/${meetingId}`}>
             <VideoIcon className="mr-2 size-4" />
             Join meeting
           </Link>
