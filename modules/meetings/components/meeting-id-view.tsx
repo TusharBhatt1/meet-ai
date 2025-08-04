@@ -7,6 +7,7 @@ import { UpcomingState } from "./states/upcoming-state";
 import { ActiveState } from "./states/active-state";
 import { CancelledState } from "./states/cancelled-state";
 import { ProcessingState } from "./states/processing-state";
+import CompletedState from "./states/completed-state";
 
 export default function MeetingIdView({ meetingId }: { meetingId: string }) {
   const trpc = useTRPC();
@@ -31,7 +32,7 @@ export default function MeetingIdView({ meetingId }: { meetingId: string }) {
       {status === "active" && <ActiveState meetingId={meetings.id} />}
       {status === "processing" && <ProcessingState />}
       {status === "cancelled" && <CancelledState />}
-      {status === "completed" && <p>Completed</p>}
+      {status === "completed" && <CompletedState data={data.meeting} />}
     </>
   );
 }

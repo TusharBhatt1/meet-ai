@@ -12,17 +12,9 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { meetingStatus } from "@/app/db/schema";
-import { cn } from "@/lib/utils";
-import humanizeDuration from "humanize-duration";
+import { cn, formatDuration } from "@/lib/utils";
 import GeneratedAvatar from "@/modules/dashboard/generated-avatar";
 
-const formatDuration = (seconds: number) => {
-  return humanizeDuration(seconds * 1000, {
-    largest: 1,
-    round: true,
-    units: ["h", "m", "s"],
-  });
-};
 
 type status = (typeof meetingStatus.enumValues)[number];
 
