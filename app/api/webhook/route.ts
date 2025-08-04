@@ -1,8 +1,9 @@
 import { db } from "@/app/db";
 import { agents, meetings } from "@/app/db/schema";
+import { inngest } from "@/app/ingest/client";
 import { streamClient } from "@/lib/stream-client";
 import {
-    CallRecordingReadyEvent,
+  CallRecordingReadyEvent,
   CallSessionParticipantLeftEvent,
   CallSessionStartedEvent,
   CallTranscriptionReadyEvent,
@@ -98,6 +99,7 @@ export async function POST(req: NextRequest) {
     const call = streamClient.video.call("default", meetingId);
     await call.end();
   } else if (eventType === "call.session_ended") {
+
     const event = payload as CallSessionStartedEvent;
     const meetingId = event.call.custom?.meetingId;
     if (!meetingId) {
@@ -123,6 +125,7 @@ export async function POST(req: NextRequest) {
       })
       .where(eq(meetings.id, associatedMeeting.id));
   } else if (eventType === "call.transcription_ready") {
+
     const event = payload as CallTranscriptionReadyEvent;
     const meetingId = event.call_cid?.split(":")[1];
 
@@ -135,13 +138,21 @@ export async function POST(req: NextRequest) {
       .set({
         transciptUrl: event.call_transcription.url,
       })
-      .where(eq(meetings.id, meetingId)).returning();
+      .where(eq(meetings.id, meetingId))
+      .returning();
+
+    await inngest.send({
+      name: "meetings/processing",
+      data: {
+        meetingId: meetingId,
+        transcriptUrl: updatedMeeting.transciptUrl,
+      },
+    });
 
     if (!updatedMeeting) {
       return NextResponse.json({ error: "Meeting not found" }, { status: 400 });
     }
-  }
-  else if (eventType === "call.recording_ready") {
+  } else if (eventType === "call.recording_ready") {
     const event = payload as CallRecordingReadyEvent;
     const meetingId = event.call_cid?.split(":")[1];
 
@@ -154,7 +165,8 @@ export async function POST(req: NextRequest) {
       .set({
         recordingUrl: event.call_recording.url,
       })
-      .where(eq(meetings.id, meetingId)).returning();
+      .where(eq(meetings.id, meetingId))
+      .returning();
 
     if (!updatedMeeting) {
       return NextResponse.json({ error: "Meeting not found" }, { status: 400 });
