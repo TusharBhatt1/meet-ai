@@ -54,11 +54,6 @@ export const columns: ColumnDef<MeetingGetMany[number]>[] = [
       </div>
     ),
   },
-
-  {
-    accessorKey: "summary",
-    header: "Summary",
-  },
   {
     accessorKey: "status",
     header: "Status",

@@ -13,6 +13,8 @@ import GeneratedAvatar from "@/modules/dashboard/generated-avatar";
 import { format } from "date-fns";
 import Link from "next/link";
 import Markdown from "react-markdown";
+import { Transcript } from "./transcript";
+import { ChatProvider } from "./chat-provider";
 
 export default function CompletedState({ data }: { data: MeetingGetOne }) {
   const { meetings: meeting } = data;
@@ -158,6 +160,13 @@ export default function CompletedState({ data }: { data: MeetingGetOne }) {
                 </div>
               </div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="transcript">
+            <Transcript meetingId={meeting.id} />
+          </TabsContent>
+          <TabsContent value="chat">
+            <ChatProvider meetingId={meeting.id} meetingName={meeting.name} />
           </TabsContent>
         </div>
       </Tabs>

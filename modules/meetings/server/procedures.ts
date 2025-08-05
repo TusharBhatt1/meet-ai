@@ -1,5 +1,5 @@
 import { db } from "@/app/db";
-import { agents, meetings } from "@/app/db/schema";
+import { agents, meetings, user } from "@/app/db/schema";
 import {
   DEFAULT_PAGE_NUMBER,
   DEFAULT_PAGE_SIZE,
@@ -8,15 +8,128 @@ import {
 } from "@/constants";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
-import { and, asc, count, eq, ilike, getTableColumns, sql } from "drizzle-orm";
+import {
+  and,
+  count,
+  eq,
+  ilike,
+  getTableColumns,
+  sql,
+  desc,
+  inArray,
+} from "drizzle-orm";
 import z from "zod";
 import { createMeetingSchema, updateMeetingSchema } from "../schema";
-import { MeetingStatus } from "../types";
+import { MeetingStatus, StreamTranscriptItem } from "../types";
 import { streamClient } from "@/lib/stream-client";
 import { createAvatar } from "@dicebear/core";
 import { initials } from "@dicebear/collection";
+import JSONL from "jsonl-parse-stringify";
+import GeneratedAvatar from "@/modules/dashboard/generated-avatar";
+import { streamChat } from "@/lib/chat";
 
 export const meetingsRouter = createTRPCRouter({
+  getChatToken: protectedProcedure.mutation(async ({ ctx }) => {
+    const token = streamChat.createToken(ctx.auth.user.id);
+
+    await streamChat.upsertUser({
+      id: ctx.auth.user.id,
+      role: "admin",
+    });
+    return token;
+  }),
+  getTranscript: protectedProcedure
+    .input(
+      z.object({
+        meetingId: z.string(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const [associatedMeeting] = await db
+        .select()
+        .from(meetings)
+        .where(
+          and(
+            eq(meetings.id, input.meetingId),
+            eq(meetings.userId, ctx.auth.user.id)
+          )
+        );
+
+      if (!associatedMeeting) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Meeting not found !",
+        });
+      }
+
+      if (!associatedMeeting.transciptUrl) return [];
+
+      const transcript = await fetch(associatedMeeting?.transciptUrl)
+        .then((res) => res.text())
+        .then((text) => JSONL.parse<StreamTranscriptItem>(text))
+        .catch(() => []);
+
+      const speakerIds = [...new Set(transcript.map((t) => t.speaker_id))];
+      const userSpeakers = await db
+        .select()
+        .from(user)
+        .where(inArray(user.id, speakerIds))
+        .then((users) =>
+          users.map((user) => ({
+            ...user,
+            image:
+              user.image ??
+              GeneratedAvatar({
+                seed: user.name,
+                variant: "botttsNeutral",
+                className: "size-7",
+              }),
+          }))
+        );
+
+      const agentSpeakers = await db
+        .select()
+        .from(agents)
+        .where(inArray(agents.id, speakerIds))
+        .then((agents) =>
+          agents.map((agent) => ({
+            ...agent,
+            image: GeneratedAvatar({
+              seed: agent.name,
+              variant: "botttsNeutral",
+              className: "size-7",
+            }),
+          }))
+        );
+
+      const speakers = [...userSpeakers, ...agentSpeakers];
+
+      const transcriptWithSpeakers = transcript.map((item) => {
+        const speaker = speakers.find((s) => s.id === item.speaker_id);
+
+        if (!speaker)
+          return {
+            ...item,
+            user: {
+              name: "Unknown",
+              image: GeneratedAvatar({
+                seed: "Unknown",
+                variant: "botttsNeutral",
+                className: "size-7",
+              }),
+            },
+          };
+        return {
+          ...item,
+          user: {
+            name: speaker.name,
+            id: speaker.id,
+          },
+        };
+      });
+      return transcriptWithSpeakers;
+    }),
+
   generateToken: protectedProcedure.mutation(async ({ ctx }) => {
     const { user } = ctx.auth;
 
@@ -111,7 +224,7 @@ export const meetingsRouter = createTRPCRouter({
           )
         )
         .limit(pageSize)
-        .orderBy(asc(meetings.createdAt))
+        .orderBy(desc(meetings.createdAt))
         .offset((page - 1) * pageSize);
 
       const [total] = await db
