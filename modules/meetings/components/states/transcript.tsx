@@ -11,11 +11,8 @@ import { format } from "date-fns";
 import Highlighter from "react-highlight-words";
 import { initials } from "@dicebear/collection";
 import { createAvatar } from "@dicebear/core";
-interface Props {
-  meetingId: string;
-}
 
-export const Transcript = ({ meetingId }: Props) => {
+export const Transcript = ({ meetingId }: { meetingId: string }) => {
   const trpc = useTRPC();
   const { data } = useQuery(
     trpc.meetings.getTranscript.queryOptions({ meetingId })
