@@ -32,7 +32,7 @@ export default function GeneratedAvatar({
   return (
     <Avatar className={cn(className)}>
       <AvatarImage src={avatar.toDataUri()} alt="Avatar" />
-      <AvatarFallback>{seed.charAt(0).toUpperCase()}</AvatarFallback>
+      <AvatarFallback>{seed?.charAt(0).toUpperCase() || "Unknown"}</AvatarFallback>
     </Avatar>
   );
 }

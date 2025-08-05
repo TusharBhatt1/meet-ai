@@ -116,7 +116,7 @@ export default function AgentIdHeader({ data }: { data: AgentGetOne }) {
 
         <Badge variant="outline">
           <VideoIcon className="text-blue-500" />{" "}
-          {meetingCount + ` ${meetingCount === 1 ? "meeting" : "meetings"}`}
+          {meetingCount + ` ${meetingCount === 1 ? " meeting" : " meetings"}`}
         </Badge>
         <div className="space-y-1">
           <h2 className="font-semibold">Instructions</h2>

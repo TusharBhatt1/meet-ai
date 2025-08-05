@@ -35,7 +35,7 @@ export const columns: ColumnDef<AgentGetMany[number]>[] = [
       <Badge variant={"outline"}>
         <VideoIcon className="text-blue-500 " />
         {row.original.meetingCount +
-          `${row.original.meetingCount === 1 ? "meeting" : " meetings"}`}
+          `${row.original.meetingCount === 1 || row.original.meetingCount === 0 ? " meeting" : " meetings"}`}
       </Badge>
     ),
   },

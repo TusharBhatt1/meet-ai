@@ -25,7 +25,6 @@ export default function MeetingIdView({ meetingId }: { meetingId: string }) {
       {status === "upcoming" && (
         <UpcomingState
           meetingId={meetings.id}
-          onCancelMeeting={() => {}}
           isCancelling={false}
         />
       )}
