@@ -6,7 +6,11 @@ import {
   MAX_PAGE_NUMBER,
   MAX_PAGE_SIZE,
 } from "@/constants";
-import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
+import {
+  createTRPCRouter,
+  premiumProcedure,
+  protectedProcedure,
+} from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
 import {
   and,
@@ -247,7 +251,7 @@ export const meetingsRouter = createTRPCRouter({
       };
     }),
 
-  create: protectedProcedure
+  create: premiumProcedure("meetings")
     .input(createMeetingSchema)
     .mutation(async ({ input, ctx }) => {
       const [createdMeeting] = await db

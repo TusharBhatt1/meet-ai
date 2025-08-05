@@ -6,10 +6,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { useSession, signOut } from "@/lib/auth-client";
+import { useSession, signOut, customer } from "@/lib/auth-client";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import GeneratedAvatar from "./generated-avatar";
-import { ChevronDown, ChevronUp, LogOut } from "lucide-react";
+import { ChevronDown, ChevronUp, LogOut, CreditCard } from "lucide-react";
 import { useState } from "react";
 import { redirect } from "next/navigation";
 
@@ -49,9 +49,13 @@ export default function UserButton() {
           )}
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-60">
+      <DropdownMenuContent className="w-60 space-y-2">
         <DropdownMenuLabel>{data.user.email}</DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => customer.portal()}>
+          <CreditCard className="mr-2 size-4" />
+          Billing
+        </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() =>
             signOut({

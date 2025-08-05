@@ -21,6 +21,8 @@ import { Textarea } from "@/components/ui/textarea";
 import GeneratedAvatar from "@/modules/dashboard/generated-avatar";
 import { toast } from "sonner";
 import { LoaderCircleIcon } from "lucide-react";
+import { TRPCClientError } from "@trpc/client";
+import { useRouter } from "next/navigation";
 
 interface AgentFormProps {
   onSuccess?: () => void;
@@ -35,6 +37,8 @@ export default function AgentForm({
 }: AgentFormProps) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+
+  const router = useRouter();
 
   const isEdit = !!initialValues;
 
@@ -52,11 +56,20 @@ export default function AgentForm({
         await queryClient.invalidateQueries(
           trpc.agents.getMany.queryOptions({})
         );
-        // TODO: invalidate free tier usage
+
+        await queryClient.invalidateQueries(
+          trpc.premium.getFreeUsage.queryOptions()
+        );
 
         toast.success(res.message);
       },
-      onError: (e) => toast.error(e.message),
+      onError: (e) => {
+        toast.error(e.message);
+        toast.error(e.message);
+        if (e instanceof TRPCClientError && e.data.code === "FORBIDDEN") {
+          router.push("/upgrade");
+        }
+      },
     })
   );
 

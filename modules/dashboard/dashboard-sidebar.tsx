@@ -15,6 +15,7 @@ import { usePathname } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import UserButton from "./user-button";
+import DashboardTrial from "./dashboard-trial";
 
 export default function DashboardSidebar() {
   const pathName = usePathname();
@@ -65,7 +66,7 @@ export default function DashboardSidebar() {
                   href={href}
                   className={cn(
                     "flex items-center gap-2 text-sm px-2 py-1.5 rounded-md hover:bg-slate-400/20 transition",
-                    pathName === href && "bg-slate-400/20",
+                    pathName === href && "bg-slate-400/20"
                   )}
                 >
                   <Icon className="w-4 h-4" />
@@ -85,7 +86,7 @@ export default function DashboardSidebar() {
                   href={href}
                   className={cn(
                     "flex items-center gap-2 text-sm px-2 py-1.5 rounded-md hover:bg-slate-400/20 transition",
-                    pathName === href && "bg-slate-400/20",
+                    pathName === href && "bg-slate-400/20"
                   )}
                 >
                   <Icon className="size-4" />
@@ -97,6 +98,7 @@ export default function DashboardSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
+        <DashboardTrial />
         <Separator />
         <UserButton />
       </SidebarFooter>

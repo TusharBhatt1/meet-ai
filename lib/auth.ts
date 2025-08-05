@@ -2,6 +2,9 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/app/db";
 import * as schema from "@/app/db/schema";
+import { polar, checkout, portal } from "@polar-sh/better-auth"; 
+import { polarClient } from "./polar";
+
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -21,4 +24,30 @@ export const auth = betterAuth({
       clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
     },
   },
+  plugins: [
+    polar({ 
+      client: polarClient, 
+      createCustomerOnSignUp: true, 
+      use: [ 
+        checkout({ 
+          successUrl: "/upgrade", 
+          authenticatedUsersOnly: true,
+        }), 
+        portal(), 
+        // usage(), 
+        // webhooks({ 
+        //   secret: process.env.POLAR_WEBHOOK_SECRET, 
+        //   onCustomerStateChanged: (payload) => {
+        //     console.log("Customer state changed", payload);
+        //   },
+        //   onOrderPaid: (payload) => {
+        //     console.log("Order paid", payload);
+        //   },
+        //   onPayload: (payload) => {
+        //     console.log("Received payload", payload);
+        //   },
+        // }), 
+      ], 
+    }), 
+  ],
 });

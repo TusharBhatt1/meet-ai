@@ -25,6 +25,8 @@ import { ComboBox } from "@/components/ui/combobox";
 import GeneratedAvatar from "@/modules/dashboard/generated-avatar";
 import { useState } from "react";
 import { NewAgentDialog } from "@/modules/agents/components/new-agent-dialog";
+import { useRouter } from "next/navigation";
+import { TRPCClientError } from "@trpc/client";
 
 interface MeetingFormProps {
   onSuccess?: () => void;
@@ -39,6 +41,8 @@ export default function MeetingForm({
 }: MeetingFormProps) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+
+  const router = useRouter();
 
   const [openNewAgentDialog, setOpenNewAgentDialog] = useState(false);
 
@@ -67,9 +71,18 @@ export default function MeetingForm({
         await queryClient.invalidateQueries(
           trpc.meetings.getMany.queryOptions({})
         );
+        await queryClient.invalidateQueries(
+          trpc.premium.getFreeUsage.queryOptions()
+        );
+
         toast.success(res.message);
       },
-      onError: (e) => toast.error(e.message),
+      onError: (e) => {
+        toast.error(e.message);
+        if (e instanceof TRPCClientError && e.data.code === "FORBIDDEN") {
+          router.push("/upgrade");
+        }
+      },
     })
   );
 
@@ -87,7 +100,6 @@ export default function MeetingForm({
         trpc.meetings.getOne.queryOptions({ id: initialValues.meetings.id })
       );
     } else {
-      console.log(data);
       await createMeeting({ ...data });
     }
     onSuccess?.();
